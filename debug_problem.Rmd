@@ -1,0 +1,37 @@
+---
+title: "Test"
+author: "Hans"
+date: "11/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+```{r}
+data <- tribble(
+  ~value, ~number, ~type, ~description,
+  10,     1,       "A",   NA,
+  15,     2,       "A",   0.2,
+  0,      3,       "B",   "Koop 4.852 @ 50,62 EUR",
+  25,     4,       "A",   0.3,)
+
+data
+
+data$rate = 5
+data$nr = 10   
+
+for (i in 1:nrow(data)) {
+  nr_str = str_extract_all(data$description[i],"\\(?[0-9,.]+\\)?")[[1]][1]
+  rate_str = str_extract_all(data$description[i],"\\(?[0-9,.]+\\)?")[[1]][2]
+  nr = as.numeric(gsub("\\.", "", nr_str))
+  rate = as.numeric(gsub(",", ".", rate_str))
+  data$value[i] <- nr * rate
+}
+
+
+
+```
+

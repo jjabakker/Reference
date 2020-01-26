@@ -1,0 +1,141 @@
+---
+title: "Data Frame"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Data frames
+
+
+### Creating data frames
+```{r}
+
+# If you do not specify anything, there will not be row names
+df = data.frame(
+  x = letters[1:5],
+  y = rnorm(5),
+  z = runif(5) > 0.5
+  )
+df
+
+# But you can specify row names
+df = data.frame(
+  x = letters[1:5],
+  y = rnorm(5),
+  z = runif(5) > 0.5,
+  row.names = c("Jackie", "Tito", "Jermaine", "Marion", "Michael")
+  )
+df
+
+# Or you can inherit row names from the first element that is names
+y = rnorm(5)
+names(y) <- c("Jackie", "Tito", "Jermaine", "Marion", "Michael")
+df = data.frame(
+  x = letters[1:5],
+  y = y,
+  z = runif(5) > 0.5,
+  row.names = c("Jackie", "Tito", "Jermaine", "Marion", "Michael")
+  )
+df
+```
+
+### Getting info about data frames
+```{r}
+dim(df)
+nrow(df)
+ncol(df)
+
+dimnames(df)
+rownames(df)
+colnames(df)
+```
+
+
+### Getting info from data frames
+
+#### By index
+
+```{r}
+df
+df[2,]
+df[,1]
+df[1:2, 3]
+df[-3,-2]
+```
+
+#### By name 
+
+- You can specify the column names using a $ - *don't use quotes* 
+- You can specify the column names using brackets - *do use quotes* 
+
+```{r}
+# You can specify the column names using a $ - don't use quotes 
+df$x
+
+# You can specify the column names using brackets - don't use quotes 
+df["x"]
+
+# To get an element form the data frame - all fouyr are identical
+df[2,1]
+df$x[2]
+df[2,"x"]
+df["Marion","x"]
+```
+
+
+#### Selective
+
+- You can select on the row
+
+```{r}
+
+df
+
+# Select everything where z is TRUE
+df[df$z,]
+
+# Select everything where z is TRUE and y < 0
+df[df$z & df$y < 0,]
+
+# Select x where z is TRUE and y < 0
+df[df$z & df$y < 0, "x"]
+df[df$z & df$y < 0, 1]
+
+```
+
+## Change the data frame
+
+```{r}
+
+df
+
+# Delete row 1
+df[-1,]
+
+# Delete row 3 and 4
+df[-c(3,4),]
+
+# select rows where z is TRUE and y < 0
+df
+df[(df$z == TRUE & df$y < 0),]
+
+# delete rows where z is TRUE and y < 0
+df[!(df$z == TRUE & df$y < 0),]
+
+# delete a column
+df
+df[,-c(1,3)]
+```
+
+
+
+
+
+
+  

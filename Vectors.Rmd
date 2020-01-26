@@ -1,0 +1,95 @@
+---
+title: "Vectors"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+p_load(tidyverse)
+p_load(ggplot2)
+theme_set(theme_minimal())
+
+```
+
+## Sequences and Vectors
+
+### Defining vectors
+
+Sequences can be defined in many ways....
+
+```{r}
+# The basic form
+1:13
+
+# Bit more flexible, you can specify steps (positive and negative)
+seq(1, 13, 2)
+seq(13, 1, -2)
+
+# Most flexible: without a specfic pattern
+s <- c(2, 5, 2, 7, 11, 3)
+s
+
+
+# You can also give names
+s <- c(a = 2, b = 5, c = 2, d = 7, e = 11, f = 3)
+s
+
+# And assign or delete names
+names(s) <- c("a1", "b1", "", "d1", "e1", "")
+s
+names(s) <- NULL
+s
+
+# Watch carefully: maybe unexpected all are valid
+1:1
+0:1
+1:0
+
+
+```
+
+
+### Accessing vectors
+```{r}
+
+s <- c(a = 2, b = 5, c = 2, d = 7, e = 11, f = 3)
+
+# Accessing all elements from vector
+s
+s[]
+
+# Accessing one element from vector by index or name
+s[1]
+s['b']
+
+# Accessing a selection
+s[1:4]
+s[c(2,3,5)]
+s[s > 4]
+s[-2]
+s[-c(2:4)]
+```
+
+
+### Information on vectors
+
+- A vector has no dimension!
+- A vector is not a one-dimensional array
+- nrow and ncol do not work: theyv require an array
+- NROW and NCOL do work: a vector is then interpreted as a column vector, i.e. it has rows
+- Note that it is displayed as if it is row vector !!!!!
+
+```{r}
+dim (s)
+nrow(s)
+ncol(s)
+
+
+s
+NROW(s)
+NCOL(s)
+```
+

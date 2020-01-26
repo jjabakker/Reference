@@ -1,0 +1,141 @@
+---
+title: "Lists"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Lists
+
+
+### Creating lists
+- Unlike vectors, lists can contain disimilar elements
+
+```{r}
+a_list <- list(
+  list (1, 1, 2, 5, 14, 42),
+  month.abb,
+  matrix(c(3, -8, 1, -3), nrow = 2),
+  asin
+)
+a_list
+
+b_list <- list(
+  catalan = list (1, 1, 2, 5, 14, 42),
+  months = month.abb,
+  involuntary = matrix(c(3, -8, 1, -3), nrow = 2),
+  arcsin = asin
+)
+b_list
+
+names(a_list) <- c("new name 1", "new name 2", "new name 3", "new name 4")
+a_list
+```
+
+
+### Information on lists
+
+- dim, nrow, ncol do not work on lists
+
+```{r}
+str(a_list)
+class(a_list)
+dim(a_list)
+nrow(a_list)
+ncol(a_list)
+```
+
+### Accessing list elements
+
+
+- Using single brackets always returns a list
+- Using double brackets returns the element contained within
+
+#### Single and double brackets
+```{r}
+
+# Difference between single and double brackets
+a_list[1]
+a_list[[1]]
+class(a_list[1])
+class(a_list[[1]])
+
+a_list[2]
+a_list[[2]]
+class(a_list[2])
+class(a_list[[2]])
+
+a_list[3]
+a_list[[3]]
+class(a_list[3])
+class(a_list[[3]])
+
+a_list[4]
+a_list[[4]]
+class(a_list[4])
+class(a_list[[4]])
+```
+
+#### Indexing in list
+
+```{r}
+
+# Element 3 from list element 2 is of class character 
+a_list[[2]]
+a_list[[2]][3]
+class(a_list[[2]][3])
+
+# Element 3 from list element 2 is of list character 
+a_list[[1]]
+a_list[[1]][6]
+class(a_list[[1]][6])
+
+# Element 3 from list is of matrix  character 
+a_list[[3]]
+class(a_list[[3]])
+
+# The first row of that matrix 
+a_list[[3]][1,]
+class(a_list[[3]][1,])
+
+# The second col of that matrix 
+a_list[[3]][,2]
+
+# Retrieving multiple elements from a list by index
+a_list[c(1,3)]
+
+# Retrieving elements from a list by name
+a_list["new name 2"]
+a_list[c("new name 4","new name 2")]
+
+# Note you can eve retrievce in duplicate
+a_list[c("new name 2","new name 1", "new name 2", "new name 2")]
+```
+### Removing elements in a list
+
+```{r}
+c_list <- list("Element 1","Element 2", "Element 3", "Element 4")
+c_list
+
+c_list[c(1,3)] <- NULL
+c_list
+
+```
+
+### Setting a list elements to NULL
+
+- The point to note here is to use list(NULL) and not just NULL
+
+```{r}
+c_list <- list("Element 1","Element 2", "Element 3", "Element 4")
+c_list
+
+c_list[c(1,3)] <- list(NULL)
+c_list
+
+```
+

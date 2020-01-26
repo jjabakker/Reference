@@ -1,0 +1,1009 @@
+---
+title: "Recipes"
+author: "Hans"
+date: "9/11/2019"
+output:
+  html_document: default
+  word_document: default
+---
+
+
+Important references:
+
+http://www.cookbook-r.com
+
+https://www.r-graph-gallery.com
+
+
+
+
+# Setup - always run
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+p_load(tidyverse)
+p_load(nycflights13)
+p_load(ggplot2)
+p_load(Deriv)
+p_load(deSolve)
+p_load(phaseR)
+p_load(gridExtra)
+theme_set(theme_minimal())
+```
+
+
+
+# Control structures
+
+## if elseif else
+```{r}
+
+i = 2
+
+if ( i > 0) {
+  print ("i > 0") 
+} else if (i < 0) {
+  print ("i < 0") 
+} else {
+  print ("i = 0") 
+}
+```
+
+
+## For loop
+```{r}
+
+# Select i from a vector
+for (i in c(1, 5, 12)) {
+  cat("i =", i, "\n")
+}
+
+# Select i from a range
+for(i in 1:4) {
+  cat("i =", i, "\n")
+}
+
+# Select i from a range - note that counting backward also  works
+for(i in 4:1) {
+  cat("i =", i, "\n")
+}
+```
+
+## While loop
+```{r}
+i <- 0
+while (i < 10) {
+  cat ("i = ", i, "\n")
+  i <- i + 1
+}
+
+```
+
+
+## Repeat loop
+```{r}
+
+i <- 0
+repeat {
+  cat ("i = ", i, "\n")
+  i <- i + 1
+  if (i > 10) {
+    break
+  }
+}
+```
+
+
+# Get info on functions and variables
+```{r}
+
+# Get all variables defined
+ls ()
+
+# Get particular variables defined
+ls (pattern = "nu")
+
+# Get all functions starting with d
+apropos("^d")
+
+# Get all functions ending with d
+apropos("d$")
+
+# Get all functions that have a number in the name
+apropos("[0-9]")
+
+# Get all functions that have tye string "vector" in the name
+apropos("vector")
+
+# Get the class of a variuble
+class("string")
+
+# Get the structure of a variable
+num <- runif(30)
+fac <- factor(sample(letters[1:5], 30, replace = TRUE))
+bool <- sample(c(TRUE, FALSE), 30, replace = TRUE)
+df <- data.frame(num, fac, bool)
+
+str(num)
+str(fac)
+str(df)
+
+# Get a summary of a variable
+summary(num)
+summary(fac)
+summary(df)
+
+attributes(num)
+attributes(fac)
+attributes(df)
+```
+
+# Operators
+```{r}
+
+# Normal division
+10 / 3
+
+# Integer division
+10 %/% 7
+
+# Remainder
+10 %% 7
+
+# Checking equality
+2 == 2
+
+# Checking float eqiuality
+sqrt(2)^2 == 2
+all.equal(sqrt(2)^2, 2)
+```
+
+
+
+# Mathematics
+
+
+
+## Get derivative and plot
+```{r}
+
+f1 <- function(x, a, b, c, h) {
+  a*x^2 + b*exp(x) + c - h
+}
+
+df.f1 = Deriv(f1, "x")
+df.f1
+
+
+
+a_val = 2
+b_val = 3
+c_val = 5
+h_val = 0
+
+# Define vector of x values and corresponding function values for plotting
+xmin  = -10
+xmax  = 3
+xstep = 0.01
+
+xvals  = seq(xmin, xmax, xstep) 
+yvals  = f1(xvals, a_val, b_val, c_val, h_val)
+dyvals = df.f1(xvals, a_val, b_val, c_val, h_val)
+
+df = data.frame(xvals, yvals, dyvals)
+
+# Plot the function
+ggplot(df) +
+  geom_line(mapping = aes(x = xvals, y = yvals), color = "blue") +
+  labs(title = "Plot Title", 
+       x = "Horizontal label", 
+       y = "Vertical label")
+
+# Plot the derivative
+ggplot(df) +
+  geom_line(mapping = aes(x = xvals, y = dyvals), color = "blue") +
+  labs(title = "Plot Title", 
+       x = "Horizontal label", 
+       y = "Vertical label")
+
+# Or plot them in one graph
+ggplot(df) +
+  geom_line(mapping = aes(x = xvals, y = yvals), color = "blue") +
+  geom_line(mapping = aes(x = xvals, y = dyvals), color = "red") +
+  labs(title = "Plot Title", 
+       x = "Horizontal label", 
+       y = "Vertical label")
+
+```
+
+## Numerically integrate
+```{r }
+
+myfun <- function(x, a) {
+  1 / (1 + exp(-x + 10) / a)
+}
+
+myfun <- function(x, a) {
+  a * x
+}
+
+(val = integrate(myfun, 0, 10, a = 2))
+
+xseq = seq(0, 10, 0.01)
+yseq = myfun(xseq, 2)
+df   = data.frame(xseq, yseq)
+
+ggplot(df) +
+  geom_line(mapping = aes(x = xseq, y = yseq), color = "blue") +
+  labs(title = "Plot Title", 
+       x = "Horizontal label", 
+       y = "Vertical label")
+
+
+```
+
+## Solve equation
+```{r}
+
+f1 <- function(x) {
+  2*x^2 - 5
+}
+
+# Plot the function, so you cn select x values witj positive and negative y value
+xseq = seq(0, 3, 0.01)
+yseq = f1(xseq)
+df = data.frame(xseq, yseq)
+
+ggplot(df) +
+  geom_line(mapping = aes(x = xseq, y = yseq), color = "blue") +
+  labs(title = "Plot Title", 
+       x = "Horizontal label", 
+       y = "Vertical label")
+
+xcross = uniroot(f1, lower = 1, upper = 2, tol = 0.000001)
+xcross$root
+(f1(xcross$root))
+
+```
+
+# ODE
+
+## Solve simple ODE 
+```{r}
+
+ode_func = function(timepoint, state, parameters) { 
+  with (as.list(c(state, parameters)), {
+    dY = a * Y  # Function definition
+    list(c(dY)) 
+  })
+}
+
+pars = c(a = 0.2)
+inistate = c(Y = 1)
+time_series = seq(0, 10, by = 0.1)
+
+out = ode(y = inistate, 
+          times = time_series, 
+          func = ode_func, 
+          parms = pars)
+
+df = data.frame(out)
+ggplot(data = df) +
+  geom_line(mapping = aes(x=time, y = Y))
+
+```
+
+
+## Phase portrait and stability
+```{r}
+
+# In this function the paremeter is Y
+# This needs to be entered in state.names
+
+ode_func = function(timepoint, state, parameters) { 
+  with (as.list(c(state, parameters)), {
+    dY = a * Y  # Function definition
+    list(c(dY)) 
+  })
+}
+
+pars <- c(a = -0.2)
+
+phaseport = phasePortrait(ode_func, 
+                          parameters = pars, 
+                          ylim = c(-2, 2), 
+                          points = 10, 
+                          xlab = "Y", 
+                          ylab = "dY/dt (a = 1)", 
+                          state.names = c("Y")     
+                          ) 
+grid() 
+
+stab.expgrowth = stability(ode_func, 
+                           ystar = 0, 
+                           parameters = pars, 
+                           system = "one.dim", 
+                           state.names = c("Y")    # Do not forget this
+                           )
+
+```
+
+# Simple ggplot recipes
+
+Refer to:https://www.r-graph-gallery.com
+
+
+## Scatterplot
+```{r}
+
+# Take mpg as data set
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = as.factor(cyl)))
+             
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = as.factor(cyl)), 
+             alpha = 0.3,
+             size = 1,
+             shape = 25) +  # Values from 0..25
+  labs(color = "Cylinder cont.") +
+  labs(x = "New x label") +
+  labs(y = "New y label") +
+  labs(title = "New Plot", subtitle = "New subtitle") +
+  labs(caption = "(based on data from ...)")
+
+
+```
+
+
+## Line plot
+```{r}
+
+# Example 1
+
+xValue <- 1:100
+yValue <- cumsum(rnorm(100))
+dataf  <- data.frame(xValue, yValue)
+
+ggplot(data = dataf) +
+  geom_line(mapping = aes(x = xValue, y = yValue), 
+            alpha = 0.3,
+            size = 1) +
+  labs(color = "Cylinder cont.") +
+  labs(x = "New x label") +
+  labs(y = "New y label") +
+  labs(title = "New Plot", subtitle = "New subtitle") +
+  labs(caption = "(based on data from ...)" )
+
+# Example 2
+
+x <- seq(-4,4,0.1)
+y <- dnorm(x)
+ggplot() + geom_line(aes(x = x, y = y))
+
+
+# Example 3
+
+myfun <- function(x, a) {
+  1 / (1 + exp(-x + 10) / a)
+}
+
+xseq = seq(0, 10, 0.01)
+yseq = myfun(xseq, 2)
+df = data.frame(xseq, yseq)
+
+ggplot(df) +
+  geom_line(mapping = aes(x = xseq, y = yseq), color = "blue") +
+  ylim(0, 1) +
+  labs(title = "Plot Title", 
+       x = "Horizontal label", 
+       y = "Vertical label")
+```
+
+
+## Bar plot 
+```{r}
+# Example 1
+data <- data.frame(
+  name = c("A", "B", "C", "D", "E") ,  
+  value = c(3, 12, 5, 18, 45)
+  )
+
+ggplot(data, aes(x = name, y = value)) + 
+  geom_bar(stat = "identity")
+
+# Example 2
+x <- 0:50
+y <- dbinom(x, size = 50, prob = 0.33)
+ggplot() + 
+  geom_bar(aes(x = x, y = y), 
+           stat = "identity", 
+           width = 0.2)
+
+```
+
+
+## Box plot
+```{r}
+# Take sleep as data set
+ggplot(sleep, aes(x = group, y = extra, fill = group)) + 
+  geom_boxplot()
+```
+
+ 
+## Histogram
+```{r}
+data <- data.frame(value = rnorm(100))
+
+ggplot(data) + 
+  geom_histogram(aes(x = value), bins = 50)
+```
+
+
+## Smooth line
+```{r}
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() +
+  geom_smooth()
+
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
+  geom_point() +
+  geom_smooth(se = FALSE)
+```
+
+
+## Controlling ggplot elements
+ 
+ 
+### Color a series 
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy),  color = "red")
+```
+
+
+### Set line type and point shapes
+```{r}
+p_load(ggpubr)
+show_point_shapes()
+show_line_types()
+```
+
+
+```{r}
+
+x <- seq(-4,4,0.1)
+y <- dnorm(x)
+
+ggplot() + 
+  geom_line(aes(x = x, y = y), linetype = 'dashed')
+ggplot() + 
+  geom_line(aes(x = x, y = y), linetype = 'dotted')
+
+ggplot() + 
+  geom_point(aes(x = x, y = y), shape = 0)
+ggplot() + 
+  geom_point(aes(x = x, y = y), shape = 1)
+ggplot() + 
+  geom_point(aes(x = x, y = y), shape = 16)
+```
+
+
+### Set labels 
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  labs(color = "Cylinder cont.") +
+  labs(x = "New x label") +
+  labs(y = "New y label") +
+  labs(title = "New Plot", subtitle = "New subtitle") +
+  labs(caption = "(Based on data from ...)")
+```
+
+
+### Set shape 
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), shape = 1) 
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy), shape = 2) 
+
+```
+
+
+### Set tick marks 
+```{r}
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  scale_y_continuous(breaks=seq(0, 60, 5)) +
+  scale_x_continuous(breaks=seq(0, 10, 0.5)) 
+```
+
+
+### Set grid lines
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) + 
+  theme(axis.line = element_line(colour = "black"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank()) 
+```
+
+
+### Display elements of data seperately
+```{r}
+# use a third selector
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, color = class))
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+```
+
+
+### Add legend
+```{r}
+x  = seq (0, 10, 0.1)
+y1 = x^2
+y2 = x^3
+df = data.frame(x, y1, y2)
+ggplot()+
+  geom_line(data=df, aes(y = y1, 
+                         x = x,
+                         colour = "dfdfdfd"), 
+            size = 1 ) +
+  geom_line(data=df, aes(y = y2, 
+                         x = x,
+                         colour = "ahahaha"), 
+            size = 1) +
+  scale_color_discrete(name = "Functions", 
+                       labels = c("y = x^2", "y = x^3"))
+
+```
+
+
+### Facet grid and wrap - Split the graph in 'facets'
+```{r}
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_wrap(~ class, nrow = 2)
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(~ class)
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) +
+  facet_grid(drv ~ cyl)
+
+```
+
+
+### Variations
+```{r}
+
+# Now for the variations 
+ggplot(data = mpg)  +
+  geom_point(mapping = aes (x = displ, y = hwy))
+
+ggplot(data = mpg)  +
+  geom_smooth(mapping = aes (x = displ, y = hwy))
+
+# You can combine the two above graphs easily....
+ggplot(data = mpg)  +
+  geom_point(mapping = aes (x = displ, y = hwy)) +
+  geom_smooth(mapping = aes (x = displ, y = hwy)) 
+
+# Same effect as before, but with parameters more conveniently reorganised
+ggplot(data = mpg, mapping = aes (x = displ, y = hwy))  +
+  geom_point() +
+  geom_smooth()
+
+# You can select data also
+ggplot(data = mpg, mapping = aes (x = displ, y = hwy))  +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(
+    data = filter(mpg, class == "subcompact"))
+
+ggplot(data = mpg, mapping = aes (x = displ, y = hwy))  +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class == "subcompact"),
+              se = FALSE)
+
+ggplot(data = mpg, mapping = aes (x = displ, y = hwy))  +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth( data = filter(mpg, class == "pickup"))
+
+ggplot(data = mpg)  +
+  geom_smooth(mapping = aes (x = displ, y = hwy,  class = drv)) +
+  geom_hline(yintercept = 20, col = 'green')
+```
+
+
+### Set limits
+```{r}
+x <- seq(-4, 4, 0.1)
+y <- dnorm(x)
+
+ggplot() + 
+  geom_line(aes(x = x, y = y)) + 
+  ylim(-0.1, 0.7) + 
+  xlim(-2, 2)
+```
+
+
+### Horizontal and vertical line
+```{r}
+
+n = 10
+ggplot(data.frame(x = 1:n, y = 1:n), 
+       aes(x = x, y = y)) +
+  geom_hline(yintercept = 2, col = 'red') + 
+  geom_hline(yintercept = 4, col = 'green') +
+  geom_vline(xintercept = 2) + 
+  geom_line(size = 1)
+```
+
+
+### Plot in a grid
+```{r}
+
+# Needs library gridExtra
+
+p <- ggplot(data = mpg)
+p1 <- p + geom_point(mapping = aes(x = displ, y = hwy, color = as.factor(cyl))) 
+p2 <- p + geom_point(mapping = aes(x = displ, y = cyl, color = hwy))
+    
+gridExtra::grid.arrange(
+    p1,
+    p2,
+    nrow = 1)
+```
+
+
+# Wrangling
+
+## Remove NA values
+```{r}
+# Create a tibble with NA values in it
+
+dd = tibble(x = 1:10,
+            y = x^2,
+            z = y - 60)
+dd[2,2] = NA
+dd[2,3] = NA
+dd[7,2] = NA
+dd[8,2] = NA
+dd[6,3] = NA
+dd
+
+# Remove all rows where a NA occurs
+dd[complete.cases(dd), ]
+
+# Remove all records where a NA occurs in column x
+dd1 <- dd[complete.cases(dd['x']), ]
+
+# Remove all records where a NA occurs in column y
+dd2 <- dd[complete.cases(dd['y']), ]
+
+dd3 <- dd[complete.cases(dd['z']), ]
+
+# Can do the same with
+dd
+drop_na(dd,c(y))
+drop_na(dd,c(z))
+drop_na(dd,c(y,z))
+drop_na(dd)
+```
+
+## Address elements in an datastructure
+```{r}
+Input =("
+Stream                     Fish
+ Mill_Creek_1                76
+ Mill_Creek_2               102
+ North_Branch_Rock_Creek_1   12
+ North_Branch_Rock_Creek_2   39
+ Rock_Creek_1                55
+ Rock_Creek_2                93
+ Rock_Creek_3                98
+ Rock_Creek_4                53
+ Turkey_Branch              102
+")
+
+Data = read.table(textConnection(Input), header=TRUE)
+glimpse(Data)
+
+Data[1,1]
+Data[1,"Fish"]
+Data[1,]$Fish
+
+Data$Stream = as.character(Data$Stream)
+Data$Fish = as.numeric(Data$Fish)
+glimpse(Data)
+
+colnames(Data)[colnames(Data) == "Fish"] <- "New Fish"
+
+Data <- mutate(Data, log(`New Fish`))
+
+```
+
+
+## Read a file
+```{r}
+p_load(devtools)
+if (file.exists("/Users/hans/")) {
+  setwd("/Users/hans/Documents/R Projects/Learning")
+} else {
+  setwd("/Users/hansbakker/Documents/R Projects/Learning")
+}
+getwd()
+setwd("..")
+getwd()
+setwd("Learning")
+getwd()
+
+#d = read.csv("./Case Study/Phenobarbital_TH.csv")
+#d = read.csv("/Users/hans/Documents/R_Projects/Computational Thinking/Case Study/Phenobarbital_TH.csv")
+
+getwd()
+setwd("../Computational Thinking")
+getwd()
+setwd("./Case Study")
+getwd()
+if (dir.exists("/Users/hans/")) {
+  setwd("/Users/hans/Documents/R_Projects/Computational Thinking/Case Study")
+} else {
+  setwd("/Users/hansbakker/Documents/R_Projects/Computational Thinking/Case Study") 
+}
+
+# requires library readxl
+library (readxl)
+
+# lsx1 <- read_excel(path = "Lopinavir_Pregnancy.xlsx",
+#                    sheet = "Patient Characteristics",
+#                    col_names = T)
+# lsx2 <- read_excel(path = "Lopinavir_Pregnancy.xlsx", 
+#                    sheet = "Concentrations",
+#                    col_names = T, 
+#                    skip = 1)
+```
+
+
+## Gather and spread
+```{r}
+ChickWeight
+cw <- ChickWeight %>% as_tibble
+
+cw_w <- cw %>% 
+  spread(key = Time, value = weight)
+cw_w
+
+cw_l <- cw_w %>% 
+  gather(key = "Time", value = "Weight", c(`0`:`21`))
+cw_l
+
+# You can arrange the output
+
+cw_l %>%
+  arrange(as.numeric(Time), desc(Diet))
+
+# But for some reason you can not arrange on Chick
+```
+
+
+## Detect outlier
+```{r}
+
+library(dslabs)
+
+# The data set contains a big outlier
+data(outlier_example)
+outlier_example
+
+# You can see that because mean and median differ a lot
+mean(outlier_example)
+median(outlier_example)
+
+# You can see that also because sd is large
+sd(outlier_example)
+
+# You can see that also in the histogram
+qplot(outlier_example)
+
+# You can see that also in the boxplot
+boxplot(outlier_example)
+
+# See if there are values > 8. See! There is one 180 
+outlier_example[outlier_example > 8]
+
+# At what index des it sit?
+which(outlier_example > 8)
+
+# Remove it form the dataset
+oe <- outlier_example[-which(outlier_example>8)]
+mean(oe)
+median(oe)
+sd(oe)
+qplot(oe)
+boxplot(oe)
+
+```
+
+
+## Select - columns
+```{r}
+iris
+
+# For the selection purpose just consider the first few records 
+short_iris <- head(iris, 20)
+
+select(short_iris, starts_with("Petal"))
+select(short_iris, Species, everything())   #reorder
+select(short_iris, -Sepal.Length)
+```
+
+
+## Filter - rows
+```{r}
+starwars
+class(starwars)
+
+# It works on a dataframe
+
+filter(starwars, species == 'Human')
+filter(starwars, mass > 100)
+filter(starwars, species == 'Human', mass > 100)
+filter(starwars, species == 'Human' & mass > 100)
+filter(starwars, species == 'Human' | mass > 100)
+
+# It works just as well on a tibble
+
+tib_starwars = as.tibble(starwars)
+class(tib_starwars)
+filter(tib_starwars, species == 'Human')
+```
+
+
+## Mutate 
+```{r}
+
+library(modelr)
+library(measurements)
+
+h <- heights %>%
+  mutate(
+    weight_kg_man = weight * 0.453592,
+    weight_kg_pkg = conv_unit(weight, "lbs", "kg"),
+    height_m      = conv_unit(height, "inch", "m")
+  ) %>%
+  select(starts_with('weight'), starts_with("height"))
+```
+
+```{r}
+my_heights <- heights %>%
+  mutate(
+    weight = conv_unit(weight, "lbs", "kg"),
+    height = conv_unit(height, "inch", "m"),
+    bmi    = weight / height  ^ 2
+  ) %>% select(bmi, education)
+my_heights
+```
+
+```{r}
+h <- my_heights %>%
+  arrange(bmi) %>%
+  select(bmi, education)
+h
+```
+
+
+## Create data for testing
+```{r}
+
+tribble(
+  ~colA, ~colB, ~colC,
+  "a",   1,     0.1,
+  "b",   2,     0.2,
+  "c",   3,     0.3
+)
+
+tibble(colA = c("a","b","c"),
+       colB = c(1,2,3),
+       colc = c(0.1, 0.2, 0.3))
+```
+
+
+## Inspect data
+```{r}
+head(mpg)
+glimpse(mpg)
+names(mpg)
+str(mpg)
+
+# How many values exist? 
+count(mpg, model)
+count(mpg, trans)
+
+mpg %>% 
+  group_by(model) %>%
+  summarise(n = n())
+```
+
+
+## Summarise / Group
+```{r}
+# Summarise two variables
+summarise(mpg, 
+          mean_hwy = mean(hwy),
+          mean_cyl = mean(cyl, na.rm = TRUE))
+
+# Summarise a variable grouped by another variable
+s <- group_by(mpg,class)
+summarise(s, mean_hwy = mean(hwy))
+
+# Summarise a variable grouped by another variable, using pipes
+mpg %>%
+  group_by(class) %>%
+  summarise(mean_hwy = mean(hwy))
+
+# Summarise a variable grouped by two variable, using pipes
+mpg %>%
+  group_by(class, trans) %>%
+  summarise(mean_hwy = mean(hwy),
+            mean_cyl = mean(cyl, na.rm = TRUE))
+```
+
+
+# String processing 
+```{r}
+
+tolower("Amsterdam")
+toupper("Amsterdam")
+sub("-", " ", "Amsterdam-NH-Netherlands")
+gsub("-", " ", "Amsterdam-NH-Netherlands")
+
+nchar("Amsterdam")
+substr("Amsterdam", 7, 9)
+paste(substr("Amsterdam", 1, 1), 
+      substr("Amsterdam", 7, 9),
+      sep = "")
+paste0(substr("Amsterdam", 1, 1), 
+      substr("Amsterdam", 7, 9))
+
+str_trim("    Amsterdam     ")
+
+```
+
+
+# Date processing
+```{r}
+d2 <- Sys.Date()
+format(d2, "%a %d %b")
+format(d2, "%A %d %b")
+format(d2, "%A %d %B")
+format(d2, "%A %d %B %Y")
+```
+
+
+
+# Rstudio
+
+## Clear console
+^L
+## Block comment
+^-Shift-C

@@ -1,0 +1,208 @@
+---
+title: "Arrays"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
+library(pacman)
+p_load(tidyverse)
+p_load(nycflights13)
+p_load(ggplot2)
+p_load(Deriv)
+p_load(deSolve)
+p_load(phaseR)
+p_load(gridExtra)
+theme_set(theme_minimal())
+```
+
+## Arrays
+
+### Define arrays and matrices
+
+- An array can have any number of dimensions and requires a dim parameter
+- A matrix has always 2 dimensions and requires a nrow  parameter
+- You can specify row and col names througgh dimnames 
+- It is also to specity a one dimensional array, **but be careful with it because it becomes a column, not a row** 
+
+```{r}
+
+# A 3-d array with names
+three_d_array <- array(
+  1:24,
+  dim = c(4,3,2),
+  dimnames = list(
+    c("one", "two", "three", "four"),
+    c("ein", "zwei", "drie"),
+    c("un", "deux")
+  )
+)
+
+# A 2-d array with names
+two_d_array <- array(
+  1:12,
+  dim = c(4,3),
+  dimnames = list(
+    c("one", "two", "three", "four"),
+    c("ein", "zwei", "drie")
+  )
+)
+two_d_array
+
+one_d_array <- array(
+  1:4,
+  dim = c(4),
+  dimnames = list(
+    c("one", "two", "three", "four")
+  )
+)
+one_d_array
+
+# An identical matrix 
+a_matrix <- matrix(
+  1:12,
+  nrow  = 4,
+  dimnames = list(
+    c("one", "two", "three", "four"),
+    c("ein", "zwei", "drie")
+  )
+)
+a_matrix 
+
+# The same matrix without names 
+a_matrix_nn <- matrix(
+  1:12,
+  nrow  = 4,
+) 
+a_matrix_nn
+```
+
+
+### Getting info on matrices and arrays
+
+- Dimensions of an array or matrix can be shown with dim
+- For matrices you can also use nrow and ncol
+- For arrays nrow and ncol can only show the first two dimensions 
+
+```{r}
+
+dim(three_d_array)
+dim(two_d_array)
+dim(one_d_array)
+dim(a_matrix)
+
+# As expected this works
+nrow(a_matrix)
+ncol(a_matrix)
+
+# This works also, but clearly you cannot get the first two dimensions
+nrow(three_d_array)
+ncol(three_d_array)
+
+nrow(one_d_array)
+ncol(one_d_array)
+
+
+```
+
+### Names of matrices and arrays
+
+- For matrices you can also use rownames and colnames
+- You can delete them or change them
+
+```{r}
+dimnames(three_d_array)
+dimnames(a_matrix)
+
+dimnames(three_d_array)[[1]]
+dimnames(three_d_array)[[2]] 
+dimnames(three_d_array)[[3]] 
+
+rownames(a_matrix)
+colnames(a_matrix)
+
+```
+
+
+### Changing row and col names
+
+- Names can be inspected, changed and deleted with dimnames
+- For matrices you use rownames and colnames
+
+```{r}
+
+dimnames(three_d_array)[[2]] <- c("G", "H", "I")
+three_d_array
+
+# dimnames(three_d_array)[[1]] <- c(NULL, NULL, NULL, NULL)
+three_d_array
+
+# Change rownames
+rownames(a_matrix) <- c("one_1", "two_2", "three_3", "four_4")
+a_matrix
+
+# Delete rownames
+rownames(a_matrix) <- NULL
+a_matrix
+```
+
+
+
+### Subsetting arrays
+```{r}
+
+a_matrix <- matrix(
+  1:12,
+  nrow  = 4,
+  dimnames = list(
+    c("one", "two", "three", "four"),
+    c("ein", "zwei", "drie")
+  )
+)
+
+a_matrix 
+
+# Select two rows and two cols
+a_matrix[c("one", "two"), c(1,3)]
+
+# Select two rows and one col
+s2 <- a_matrix[c("one", "two"), -c(1,3)]
+s2
+nrow(s2)
+ncol(s2)
+
+# Select one row and two cols
+s3 <- a_matrix[c("one"), c(1,3)]
+s3
+nrow(s3)
+ncol(s3)
+```
+
+### Accessing matrix elements
+
+- For a matrix you need to specify two dimension
+- If you specify one dimension, the elements are assumed to be in a sequence (column first)
+
+
+```{r}
+a_matrix  <- matrix(seq(23,34), nrow = 3)
+a_matrix
+
+# First row
+a_matrix[1,]
+
+# Second column
+a_matrix[,2]
+
+# An element
+a_matrix[1,2]
+
+# Peculiar, here it interprets the matris as a column vector
+a_matrix[8]
+
+```
+
+
