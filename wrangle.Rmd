@@ -30,11 +30,12 @@ p_load(dslabs)
 
 ```{r}
 
-# stringsAsFactors = FALSE is used to prevenbt the automatic creatuiib of factors
+# stringsAsFactors = FALSE is used to prevent the automatic creation of factors
 # For 'sex' you want it, so there you specify it explicitly
-mydata <- data.frame(person=c("Peter","Lois","Meg","Chris","Stewie"),
-                     age=c(42,40,17,14,1),
-                     sex=factor(c("M","F","F","M","M")), 
+
+mydata <- data.frame(person = c("Peter","Lois","Meg","Chris","Stewie"),
+                     age    = c(42,40,17,14,1),
+                     sex    = factor(c("M","F","F","M","M")), 
                      stringsAsFactors = FALSE)
 mydata
 mydata$age
